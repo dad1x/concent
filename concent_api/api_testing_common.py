@@ -32,7 +32,7 @@ from golem_messages.utils import encode_hex
 from common.helpers import parse_timestamp_to_utc_datetime
 from common.helpers import sign_message
 from common.testing_helpers import generate_ecc_key_pair
-from concent_api.settings import GOLEM_MESSAGES_VERSION
+from concent_api.settings.e2e_tests_settings_template import GOLEM_MESSAGES_VERSION
 from core.exceptions import UnexpectedResponse
 from protocol_constants import get_protocol_constants
 from protocol_constants import print_protocol_constants

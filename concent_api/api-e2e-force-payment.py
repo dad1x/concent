@@ -29,7 +29,7 @@ from protocol_constants import ProtocolConstants
 
 import requests
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings.e2e_tests_settings_template")
 
 """
 Average time for 2 blocks
@@ -56,14 +56,13 @@ def subtask_results_accepted(
     task_to_compute: Optional[message.TaskToCompute]=None
 ) -> message.tasks.SubtaskResultsAccepted:
     with freeze_time(timestamp):
-        signed_message: message.tasks.SubtaskResultsAccepted = sign_message(
+        return sign_message(
             message.tasks.SubtaskResultsAccepted(
                 payment_ts=payment_ts,
                 task_to_compute=task_to_compute
             ),
             REQUESTOR_PRIVATE_KEY,
         )
-        return signed_message
 
 
 @count_fails
@@ -234,7 +233,7 @@ def test_case_2_a_force_payment_with_subtask_result_accepted_where_ethereum_acco
 
 if __name__ == '__main__':
     try:
-        from concent_api.settings import CONCENT_PUBLIC_KEY
+        from concent_api.settings.e2e_tests_settings_template import CONCENT_PUBLIC_KEY
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:

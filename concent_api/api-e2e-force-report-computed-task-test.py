@@ -25,7 +25,7 @@ from protocol_constants import ProtocolConstants
 
 import requests
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings.e2e_tests_settings_template")
 
 
 def force_report_computed_task(task_to_compute: TaskToCompute) -> ForceReportComputedTask:
@@ -100,7 +100,7 @@ def test_case_1_provider_forces_report_computed_task_and_gets_accepted(
 
 if __name__ == '__main__':
     try:
-        from concent_api.settings import CONCENT_PUBLIC_KEY
+        from concent_api.settings.e2e_tests_settings_template import CONCENT_PUBLIC_KEY
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:

@@ -29,7 +29,7 @@ from protocol_constants import ProtocolConstants
 
 import requests
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings.e2e_tests_settings_template")
 
 
 def get_force_get_task_result(
@@ -172,8 +172,10 @@ def test_case_2_test_for_non_existing_file(cluster_consts: ProtocolConstants, cl
 
 if __name__ == '__main__':
     try:
-        from concent_api.settings import CONCENT_PUBLIC_KEY
-        from concent_api.settings import STORAGE_CLUSTER_ADDRESS
+        from concent_api.settings.e2e_tests_settings_template import CONCENT_PUBLIC_KEY
+        from concent_api.settings.e2e_tests_settings_template import STORAGE_CLUSTER_ADDRESS
+        print(CONCENT_PUBLIC_KEY)
+        print(STORAGE_CLUSTER_ADDRESS)
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:
