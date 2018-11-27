@@ -2,12 +2,11 @@ import logging
 from typing import List
 
 from celery import shared_task
-from django.db import transaction
 from mypy.types import Optional
-
 
 from common.constants import ErrorCode
 from common.decorators import log_task_errors
+from common.decorators import non_nesting_atomic
 from common.decorators import provides_concent_feature
 from common.helpers import parse_datetime_to_timestamp
 from common.helpers import parse_timestamp_to_utc_datetime
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
 @shared_task
 @provides_concent_feature('conductor-worker')
 @log_task_errors
-@transaction.atomic(using='storage')
+@non_nesting_atomic(using='storage')
 def blender_verification_request(
     subtask_id: str,
     source_package_path: str,
@@ -110,7 +109,7 @@ def blender_verification_request(
 
 @shared_task
 @log_task_errors
-@transaction.atomic(using='storage')
+@non_nesting_atomic(using='storage')
 def upload_acknowledged(
     subtask_id: str,
     source_file_size: str,
@@ -232,7 +231,7 @@ def filter_frames_by_blender_subtask_definition(blender_subtask_definition: Blen
 @shared_task
 @provides_concent_feature('conductor-worker')
 @log_task_errors
-@transaction.atomic(using='storage')
+@non_nesting_atomic(using='storage')
 def result_transfer_request(subtask_id: str, result_package_path: str) -> None:
     assert isinstance(subtask_id, str)
     assert isinstance(result_package_path, str)

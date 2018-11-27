@@ -5,7 +5,6 @@ from typing import Union
 import logging
 
 from django.conf import settings
-from django.db import transaction
 from django.db import IntegrityError
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
@@ -16,6 +15,7 @@ from golem_sci.events import ForcedPaymentEvent
 from psycopg2 import errorcodes as pg_errorcodes
 
 from common.constants import ConcentUseCase
+from common.decorators import non_nesting_atomic
 from common.helpers import deserialize_message
 from common.helpers import ethereum_public_key_to_address
 from common.helpers import get_current_utc_timestamp
@@ -72,7 +72,7 @@ def claim_deposit(
     # Bankster creates Client and DepositAccount objects (if they don't exist yet) for the requestor
     # and also for the provider if there's a non-zero claim against his account.
     # This is done in single database transaction.
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         try:
             requestor_client = Client.objects.get_or_create_full_clean(
                 public_key=requestor_public_key,
@@ -136,7 +136,7 @@ def claim_deposit(
 
     # Bankster puts database locks on DepositAccount objects
     # that will be used as payers in newly created DepositClaims.
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         # Bankster sums the amounts of all existing DepositClaims that have the same payer as the one being processed.
         aggregated_claims_against_requestor = DepositClaim.objects.filter(
             payer_deposit_account=requestor_deposit_account
@@ -209,7 +209,7 @@ def finalize_payment(deposit_claim: DepositClaim) -> Optional[str]:
     )
 
     # Bankster begins a database transaction and puts a database lock on the DepositAccount object.
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         DepositAccount.objects.select_for_update().get(
             pk=deposit_claim.payer_deposit_account_id
         )
@@ -301,7 +301,7 @@ def settle_overdue_acceptances(
     assert len(provider_ethereum_address) == ETHEREUM_ADDRESS_LENGTH
     assert provider_ethereum_address != requestor_ethereum_address
 
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         try:
             requestor_client = Client.objects.get_or_create_full_clean(
                 public_key=requestor_public_key,
@@ -314,7 +314,7 @@ def settle_overdue_acceptances(
             else:
                 raise
 
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         try:
             requestor_deposit_account = DepositAccount.objects.get_or_create_full_clean(
                 client=requestor_client,
@@ -333,7 +333,7 @@ def settle_overdue_acceptances(
     requestor_deposit_value = service.get_deposit_value(client_eth_address=requestor_ethereum_address)  # pylint: disable=no-value-for-parameter
 
     # Bankster begins a database transaction and puts a database lock on the DepositAccount object.
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         DepositAccount.objects.select_for_update().get(
             pk=requestor_deposit_account.pk
         )
@@ -472,7 +472,7 @@ def discard_claim(deposit_claim: DepositClaim) -> bool:
 
     assert isinstance(deposit_claim, DepositClaim)
 
-    with transaction.atomic(using='control'):
+    with non_nesting_atomic(using='control'):
         try:
             DepositAccount.objects.select_for_update().get(
                 pk=deposit_claim.payer_deposit_account_id
