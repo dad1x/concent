@@ -30,6 +30,8 @@ from protocol_constants import ProtocolConstants
 
 import requests
 
+from core.utils import calculate_maximum_download_time
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings")
 
 CALCULATED_VERIFICATION_TIME = 25  # seconds
@@ -53,7 +55,9 @@ def get_subtask_results_verify(
     provider_ethereum_public_key: Optional[bytes] = None,
     price: int = 1,
     script_src: Optional[str] = None,
-    time_offset: Optional[int] = None,
+    is_verification_deadline_before_current_time: bool=False,
+    additional_verification_call_time: int=0,
+    minimum_upload_rate: int=0
 ) -> message.concents.SubtaskResultsVerify:
     task_to_compute = create_signed_task_to_compute(
         deadline=current_time + CALCULATED_VERIFICATION_TIME,
@@ -81,10 +85,16 @@ def get_subtask_results_verify(
             reason=reason,
             report_computed_task=report_computed_task,
         )
-        if time_offset is not None:
+        if is_verification_deadline_before_current_time:
             override_timestamp(
                 subtask_results_rejected,
-                subtask_results_rejected.timestamp - time_offset
+                subtask_results_rejected.timestamp - (
+                    additional_verification_call_time +
+                    calculate_maximum_download_time(
+                        report_computed_task.size,
+                        minimum_upload_rate,
+                    ) + 1
+                )
             )
         subtask_results_rejected.sign_message(
             REQUESTOR_PRIVATE_KEY,
@@ -233,13 +243,15 @@ def test_case_3_test_for_invalid_time(cluster_consts: ProtocolConstants, cluster
         PROVIDER_PRIVATE_KEY,
         CONCENT_PUBLIC_KEY,
         get_subtask_results_verify(
-            current_time - (CALCULATED_VERIFICATION_TIME * (ADDITIONAL_VERIFICATION_TIME_MULTIPLIER / BLENDER_THREADS)),
+            current_time,
             reason=message.tasks.SubtaskResultsRejected.REASON.VerificationNegative,
             report_computed_task_size=file_size,
             report_computed_task_package_hash=file_check_sum,
             task_to_compute_size=file_size,
             task_to_compute_package_hash=file_check_sum,
-            time_offset=3600
+            is_verification_deadline_before_current_time=True,
+            additional_verification_call_time=cluster_consts.additional_verification_call_time,
+            minimum_upload_rate=cluster_consts.minimum_upload_rate,
         ),
         expected_status=200,
         expected_message_type=message.concents.ServiceRefused,
