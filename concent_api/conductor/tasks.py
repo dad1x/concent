@@ -101,12 +101,13 @@ def blender_verification_request(
             subtask_id=subtask_id
 
         )
-        # If all expected files have been uploaded, the app sends upload_finished task to the work queue.
-        tasks.upload_finished.delay(verification_request.subtask_id)
 
         verification_request.upload_finished = True
         verification_request.full_clean()
         verification_request.save()
+
+        # If all expected files have been uploaded, the app sends upload_finished task to the work queue.
+        tasks.upload_finished.delay(verification_request.subtask_id)
 
 
 @shared_task
