@@ -34,7 +34,7 @@ from core.utils import calculate_maximum_download_time
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "concent_api.settings")
 
-CALCULATED_VERIFICATION_TIME = 25  # seconds
+CALCULATED_VERIFICATION_TIME = 50  # seconds
 
 (DIFFERENT_REQUESTOR_ETHEREUM_PRIVATE_KEY, DIFFERENT_REQUESTOR_ETHEREUM_PUBLIC_KEY) = generate_priv_and_pub_eth_account_key()
 (DIFFERENT_PROVIDER_ETHEREUM_PRIVATE_KEY, DIFFERENT_PROVIDER_ETHEREUM_PUBLIC_KEY) = generate_priv_and_pub_eth_account_key()
@@ -177,7 +177,7 @@ def test_case_1_test_for_positive_case(cluster_consts: ProtocolConstants, cluste
     ))
 
     # Adding 10 seconds to time sleep makes us sure that subtask is after deadline.
-    time.sleep(CALCULATED_VERIFICATION_TIME * (ADDITIONAL_VERIFICATION_TIME_MULTIPLIER / BLENDER_THREADS))
+    time.sleep(CALCULATED_VERIFICATION_TIME)
 
     api_request(
         cluster_url,
@@ -407,7 +407,7 @@ def test_case_6_test_without_script_src_in(cluster_consts: ProtocolConstants, cl
     ))
 
     # Adding 10 seconds to time sleep makes us sure that subtask is after deadline.
-    time.sleep(CALCULATED_VERIFICATION_TIME * (ADDITIONAL_VERIFICATION_TIME_MULTIPLIER / BLENDER_THREADS))
+    time.sleep(CALCULATED_VERIFICATION_TIME)
 
     api_request(
         cluster_url,
@@ -436,8 +436,6 @@ if __name__ == '__main__':
     try:
         from concent_api.settings import CONCENT_PUBLIC_KEY
         from concent_api.settings import STORAGE_CLUSTER_ADDRESS
-        from concent_api.settings import ADDITIONAL_VERIFICATION_TIME_MULTIPLIER
-        from concent_api.settings import BLENDER_THREADS
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:
