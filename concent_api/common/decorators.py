@@ -2,6 +2,7 @@ from functools import wraps
 from logging import getLogger
 from typing import Any
 from typing import Callable
+from typing import Union
 import traceback
 
 from django.conf import settings
@@ -53,7 +54,7 @@ def log_task_errors(task: Callable) -> Callable:
     return wrapper
 
 
-def non_nesting_atomic(using: str=None, savepoint: bool=True) -> Atomic:
+def non_nesting_atomic(using: Union[str, Callable]=None, savepoint: bool=True) -> Atomic:
     if (
         settings.DETECT_NESTED_TRANSACTIONS and
         get_connection(using if using is not None else DEFAULT_DB_ALIAS).in_atomic_block
