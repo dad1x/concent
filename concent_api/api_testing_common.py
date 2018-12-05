@@ -459,3 +459,13 @@ def create_signed_report_computed_task(
             provider_private_key,
         )
         return signed_message
+
+
+def get_cluster_name_from_address(address):
+    cluster_name = address.split('.')[0]
+    # If staging or testnet cluster will be tested then it should return 'staging' or 'test'
+    # elsewhere it should always return 'devel' because of possibility to test Concent locally
+    if cluster_name in ['staging', 'test']:
+        return cluster_name
+    else:
+        return 'devel'

@@ -15,6 +15,7 @@ from common.helpers import get_current_utc_timestamp
 from common.helpers import parse_timestamp_to_utc_datetime
 
 from api_testing_common import api_request
+from api_testing_common import get_cluster_name_from_address
 from api_testing_common import count_fails
 from api_testing_common import create_client_auth_message
 from api_testing_common import create_signed_report_computed_task
@@ -284,7 +285,8 @@ def test_case_2_a_force_payment_with_subtask_result_accepted_where_ethereum_acco
 if __name__ == '__main__':
     try:
         from concent_api.settings import CONCENT_PUBLIC_KEY
-        sci_base = SCIBaseTest('devel')
+        cluster_name = get_cluster_name_from_address(sys.argv[1])
+        sci_base = SCIBaseTest(cluster_name)
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:

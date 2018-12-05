@@ -12,6 +12,7 @@ from golem_messages import message
 from common.helpers import get_current_utc_timestamp
 from common.helpers import upload_file_to_storage_cluster
 from api_testing_common import api_request
+from api_testing_common import get_cluster_name_from_address
 from api_testing_common import assert_condition
 from api_testing_common import count_fails
 from api_testing_common import create_client_auth_message
@@ -429,7 +430,8 @@ if __name__ == '__main__':
         from concent_api.settings import STORAGE_CLUSTER_ADDRESS
         from concent_api.settings import ADDITIONAL_VERIFICATION_TIME_MULTIPLIER
         from concent_api.settings import BLENDER_THREADS
-        sci_base = SCIBaseTest('devel')
+        cluster_name = get_cluster_name_from_address(sys.argv[1])
+        sci_base = SCIBaseTest(cluster_name)
         status = run_tests(globals())
         exit(status)
     except requests.exceptions.ConnectionError as exception:
