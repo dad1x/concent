@@ -485,17 +485,17 @@ def handle_send_force_get_task_result(
             subtask=subtask,
         )
 
-        result_transfer_request.delay(
-            subtask.subtask_id,
-            get_storage_result_file_path(
-                subtask_id=subtask.subtask_id,
-                task_id=subtask.task_id,
-            ),
-        )
+    result_transfer_request.delay(
+        subtask.subtask_id,
+        get_storage_result_file_path(
+            subtask_id=subtask.subtask_id,
+            task_id=subtask.task_id,
+        ),
+    )
 
-        return message.concents.AckForceGetTaskResult(
-            force_get_task_result = client_message,
-        )
+    return message.concents.AckForceGetTaskResult(
+        force_get_task_result=client_message,
+    )
 
 
 def handle_send_force_subtask_results(
